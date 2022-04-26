@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Wind Anemometer Sensor Reading</title>
+</head>
+<body>
+
+	<table>
+		<tr>
+			<td colspan="3"><h1>Wind Station</h1></td>
+		</tr>
+		<tr><td colspan="3">Location: Klang, Selangor</td></tr>
+		<tr>
+			<td style="color: blue" width="70%">Temperature: <span id="temp">28.50</span> &#8451;</td>
+			<td style="color: blue" width="15%">Humidity: <span id="humd">58.00</span> %</td>
+			<td style="color: blue" width="15%">Air Pressure: <span id="pres">100869</span> Pa</td>
+		</tr>
+		<tr>
+			<td style="text-align: center; color: green"><h1>Wind Speed: <span id="wind">8.24</span> m/s</h1></td>
+			<td colspan="2" rowspan="2" style="text-align: center;"><img src="TURBINE_Sustainability_commitments_short.gif" id="img"></td>
+		</tr>
+		<tr>
+			<td style="text-align: center;"><canvas id="myChart"></canvas></td>
+		</tr>
+	</table>
+
+</body>
+<style type="text/css">
+	body {
+		font-family: sans-serif;
+	}
+	table {
+		width: 100%;
+	}
+	table, th, td {
+		border:1px solid black;
+		border-collapse: collapse;
+		border-width: 2px;
+		padding: 12px;
+	}
+	img {
+		width: 200px;
+		height: 200px;
+	}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+<script type="text/javascript">
+	'use strict'
+	var temp = document.getElementById('temp');
+	var humd = document.getElementById('humd');
+	var pres = document.getElementById('pres');
+	var wind = document.getElementById('wind');
+	var img = document.getElementById('img');
+	temp.innerText = 35.2;
+	pres.innerText = 100861;
+
+	var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+            responsive: true,
+
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Wind",
+                    borderColor: "#3498DB",
+                    data: [],
+                    fill: false,
+                    pointStyle: 'circle',
+                    backgroundColor: '#3498DB',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    lineTension: 0
+                },
+                
+                // }, {
+                //     label: "Humidity",
+                //     borderColor: "#AEAAA9",
+                //     data: [],
+                //     fill: false,
+                //     pointStyle: 'circle',
+                //     backgroundColor: '#AEAAA9',
+                //     pointRadius: 5,
+                //     pointHoverRadius: 7,
+                //     lineTension: 0.1,
+                // }]
+                ]
+            },
+
+            // Configuration options go here
+            options: {
+		        scales: {
+		            yAxes: [{
+		                ticks: {
+		                    beginAtZero:true,
+		                    suggestedMin: 0,
+                    		suggestedMax: 10
+		                }
+		            }]
+		        }
+		    }
+        });
+
+
+	setInterval(function() {
+		var windVal = randomInteger(0, 10);
+		wind.innerText = windVal;
+		humd.innerText = randomInteger(30, 40);
+
+		if (windVal > 3) {
+			img.src = 'TURBINE_Sustainability_commitments_short.gif'
+		} else {
+			img.src = 'not-moving.png'
+		}
+
+		var date = moment().format('h:mm:ss a');
+		if (chart.data.labels.length != 50) { //If we have less than 15 data points in the graph
+            chart.data.labels.push(date);  //Add time in x-asix
+            // chart.data.datasets.forEach((dataset) => {
+            //     dataset.data.push(randomInteger(30, 70)); //Add temp in y-axis
+            // });
+            chart.data.datasets[0].data.push(windVal);
+            // chart.data.datasets[1].data.push(randomInteger(30, 70));
+        } else { //If there are already 15 data points in the graph.
+            chart.data.labels.shift(); //Remove first time data
+            chart.data.labels.push(date); //Insert latest time data
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.shift(); //Remove first temp data
+                dataset.data.push(windVal); //Insert latest temp data
+            });
+            // chart.data.datasets[0].data.push(windVal);
+            // chart.data.datasets[1].data.push(randomInteger(30, 70));
+        }
+        chart.update(); //Update the graph.
+	}, 5000);
+
+	function randomInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+</script>
+</html>
