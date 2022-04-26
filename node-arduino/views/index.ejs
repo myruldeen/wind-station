@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <header>
+        <h1>SENSOR DASHBOARD</h1>
+        <h2>temperature humidity light</h2>
+    </header>
+    <main>
+        <h3>current values</h3>
+        <div class="container">
+            <div id="donut1" class="donut flex-child"></div>
+            <div id="donut2" class="donut flex-child"></div>
+            <div id="donut3" class="donut flex-child"></div>
+            <div id="donut4" class="donut flex-child"></div>
+            <div id="donut5" class="donut flex-child"></div>
+            <div id="donut6" class="donut flex-child"></div>
+            <div id="donut7" class="donut flex-child"></div>
+        </div>
+        <div class="chart-container" style="position: relative; width:85vw; margin: auto;">
+            <canvas id="myChart"></canvas>
+        </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="javascript/donut.js"></script>
+    <script src="javascript/main.js"></script>
+    <script>
+        var socket = io.connect('http://localhost:4000'); //connect to server
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+            responsive: true,
+
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Temperature",
+                    borderColor: "#3498DB",
+                    data: [],
+                    fill: false,
+                    pointStyle: 'circle',
+                    backgroundColor: '#3498DB',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    lineTension: 0.1,
+                }, {
+                    label: "Humidity",
+                    borderColor: "#AEAAA9",
+                    data: [],
+                    fill: false,
+                    pointStyle: 'circle',
+                    backgroundColor: '#AEAAA9',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    lineTension: 0.1,
+                }]
+            },
+
+            // Configuration options go here
+            options: {}
+
+        });
+
+        setInterval(function () {
+            if (chart.data.labels.length != 15) { //If we have less than 15 data points in the graph
+                chart.data.labels.push(randomInteger(3, 10));  //Add time in x-asix
+                // chart.data.datasets.forEach((dataset) => {
+                //     dataset.data.push(randomInteger(30, 70)); //Add temp in y-axis
+                // });
+                chart.data.datasets[0].data.push(randomInteger(30, 70));
+                chart.data.datasets[1].data.push(randomInteger(30, 70));
+            }
+            else { //If there are already 15 data points in the graph.
+                chart.data.labels.shift(); //Remove first time data
+                chart.data.labels.push(randomInteger(3, 10)); //Insert latest time data
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data.shift(); //Remove first temp data
+                    dataset.data.push(randomInteger(30, 70)); //Insert latest temp data
+                });
+                chart.data.datasets[0].data.push(randomInteger(30, 70));
+                chart.data.datasets[1].data.push(randomInteger(30, 70));
+            }
+            chart.update(); //Update the graph.
+        }, 1000);
+
+        // socket.on('temp', function (data) { //As a temp data is received 
+        //     console.log(data.temp);
+        //     document.getElementById('date').innerHTML = data.date; //update the date
+        //     if (chart.data.labels.length != 15) { //If we have less than 15 data points in the graph
+        //         chart.data.labels.push(data.time);  //Add time in x-asix
+        //         chart.data.datasets.forEach((dataset) => {
+        //             dataset.data.push(data.temp); //Add temp in y-axis
+        //         });
+        //     }
+        //     else { //If there are already 15 data points in the graph.
+        //         chart.data.labels.shift(); //Remove first time data
+        //         chart.data.labels.push(data.time); //Insert latest time data
+        //         chart.data.datasets.forEach((dataset) => {
+        //             dataset.data.shift(); //Remove first temp data
+        //             dataset.data.push(data.temp); //Insert latest temp data
+        //         });
+        //     }
+        //     chart.update(); //Update the graph.
+        // });
+        function randomInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+    </script>
+</body>
+<style>
+    h1 {
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+    }
+
+    h4 {
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+    }
+
+    p {
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+    }
+</style>
+
+</html>
